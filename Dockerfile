@@ -1,4 +1,4 @@
- GNU nano 7.2                                                  Dockerfile                                                            FROM jenkins/jenkins:lts
+FROM jenkins/jenkins:lts
 
 USER root
 

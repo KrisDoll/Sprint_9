@@ -2,7 +2,7 @@ FROM jenkins/jenkins:lts
 
 USER root
 
-# Установка Python и зависимостей
+# Установка системных пакетов и Python зависимостей
 RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
@@ -36,11 +36,15 @@ RUN apt-get update && apt-get install -y \
     libxext6 \
     libxfixes3 \
     libglib2.0-0 \
-    libjpeg62-turbo \
-    libappindicator3-1 \
-    libcairo2 \
-    xdg-utils && \
-    apt-get clean
+    libjpeg62-turbo-dev \   # добавил -dev для совместимости
+    libcairo2 && \             # убрал лишний перенос строки
+# Очистка кеша
+apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Установка Python-зависимостей из requirements.txt (предполагается, что он копируется в образ)
+# Копируйте requirements.txt в образ перед этим шагом
+COPY requirements.txt /tmp/
+RUN pip3 install --no-cache-dir -r /tmp/requirements.txt
 
 # Установка Chrome Headless (версия 139)
 RUN wget -q -O /tmp/chrome-linux64.zip https://storage.googleapis.com/chrome-for-testing-public/139.0.7258.66/linux64/chrome-linux64.zip && \
@@ -53,7 +57,7 @@ RUN wget -q -O /tmp/chrome-linux64.zip https://storage.googleapis.com/chrome-for
 RUN wget -q -O /tmp/chromedriver.zip https://storage.googleapis.com/chrome-for-testing-public/139.0.7258.66/linux64/chromedriver-linux64.zip && \
     unzip /tmp/chromedriver.zip -d /opt/ && \
     mv /opt/chromedriver-linux64/chromedriver /usr/local/bin/chromedriver && \
-    chmod +x /usr/local/bin/chromedriver && \
-    rm /tmp/chromedriver.zip
+   chmod +x /usr/local/bin/chromedriver && \
+   rm /tmp/chromedriver.zip
 
 USER jenkins

@@ -39,18 +39,18 @@ RUN apt-get update && apt-get install -y \
     libjpeg62-turbo \
     libappindicator3-1 \
     libcairo2 \
-    xdg-utils \
-    && apt-get clean
+    xdg-utils && \
+    apt-get clean
 
 # Установка Chrome Headless (версия 139)
-RUN wget -q -O /tmp/chrome-linux64.zip https://storage.googleapis.com/chrome-for-testing-public/139.0.7258.66/linux64/chrome-linux64.zip>
+RUN wget -q -O /tmp/chrome-linux64.zip https://storage.googleapis.com/chrome-for-testing-public/139.0.7258.66/linux64/chrome-linux64.zip && \
     unzip /tmp/chrome-linux64.zip -d /opt/ && \
     mv /opt/chrome-linux64 /opt/chrome && \
     ln -s /opt/chrome/chrome /usr/bin/google-chrome && \
     rm /tmp/chrome-linux64.zip
 
 # Установка ChromeDriver (версия 139)
-RUN wget -q -O /tmp/chromedriver.zip https://storage.googleapis.com/chrome-for-testing-public/139.0.7258.66/linux64/chromedriver-linux64.zip>
+RUN wget -q -O /tmp/chromedriver.zip https://storage.googleapis.com/chrome-for-testing-public/139.0.7258.66/linux64/chromedriver-linux64.zip && \
     unzip /tmp/chromedriver.zip -d /opt/ && \
     mv /opt/chromedriver-linux64/chromedriver /usr/local/bin/chromedriver && \
     chmod +x /usr/local/bin/chromedriver && \

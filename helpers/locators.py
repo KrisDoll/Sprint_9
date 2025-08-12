@@ -1,0 +1,26 @@
+from selenium.webdriver.common.by import By
+
+class Locators:
+    SIGNUP_BUTTON = (By.XPATH, "//a[text()='Создать аккаунт']")
+    FIRST_NAME_FIELD = (By.XPATH, "//input[@name='first_name']")
+    LAST_NAME_FIELD = (By.XPATH, "//input[@name='last_name']")
+    USER_NAME_FIELD = (By.XPATH, "//input[@name='username']")
+    EMAIL_FIELD = (By.XPATH, "//input[@name='email']")
+    PASSWORD_FIELD = (By.XPATH, "//input[@name='password']")
+    CREATE_ACCOUNT_BUTTON = (By.XPATH, "//button[text()='Создать аккаунт']")
+    LOGIN_TO_ACCOUNT_BUTTON = (By.XPATH, "//button[text()='Войти']")
+    LOGOUT_BUTTON = (By.XPATH, "//a[text()='Выход']")
+
+    RECIPES_TAB = (By.XPATH, "//a[text()='Рецепты']")
+    CREATE_RECIPE_TAB = (By.XPATH, "//a[text()='Создать рецепт']")
+    CREATE_RECIPE_BUTTON = (By.XPATH, "//button[text()='Создать рецепт']")
+    RECIPE_NAME_INPUT = (By.XPATH, "//div[text()='Название рецепта']/../input")
+    INGREDIENTS_INPUT = (By.XPATH, "//div[text()='Ингредиенты']/../input")
+    INGREDIENTS_POPUP_LIST = (By.XPATH, "//div[@class='styles_container__3ukwm']/div")
+    INGREDIENTS_AMOUNT_VALUE = (By.XPATH, "//input[contains(@class, 'ingredientsAmountValue')]")
+    ADD_INGREDIENT_BUTTON = (By.XPATH, "//div[text()='Добавить ингредиент']")
+    IMAGE_UPLOAD_INPUT = (By.XPATH, "//input[@type='file' and contains(@class, 'styles_fileInput__3HjP3')]")
+    IMAGE_UPLOAD_BUTTON = (By.XPATH, "//div[contains(@class, 'styles_button') and text()='Выбрать файл']")
+    COOKING_TIME_INPUT = (By.XPATH, "//div[text()='Время приготовления']/../input")
+    RECIPE_DESCRIPTION_INPUT = (By.XPATH, "//div[text()='Описание рецепта']/../textarea")
+    RECIPE_TITLE = (By.XPATH, "//h1")

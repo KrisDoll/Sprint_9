@@ -1,0 +1,2 @@
+Используемый путь к файлу: C:\Users\Pusya\PycharmProjects\Diplom\Sprint_9\tests\test_data\test_picture.jpg
+Используемый путь к файлу: C:\Users\Pusya\PycharmProjects\Diplom\Sprint_9\tests\test_data\test_picture.jpg

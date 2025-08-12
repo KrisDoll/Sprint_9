@@ -1,0 +1,17 @@
+name: Selenoid Tests Workflow
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  run-selenoid-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      # Вставим вторым шагом скачивание нужного контейнера
+      - name: Pull selenoid image
+        run: docker pull selenoid/chrome:128.0
+      - name: Run tests in docker
+        run: docker compose up --build --exit-code-from test_docker

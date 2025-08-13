@@ -10,17 +10,17 @@ from helpers.generator import Generator
 def driver():
     options = webdriver.ChromeOptions()
     options.set_capability("browserName", "chrome")
-    options.set_capability("browserVersion", "latest")
+    options.set_capability("browserVersion", "128.0")  # Должно совпадать с browsers.json
     options.set_capability("selenoid:options", {
         "enableVNC": False,
-        "enableVideo": False
+        "enableVideo": False,
+        "sessionTimeout": "5m"
     })
 
     driver = webdriver.Remote(
         command_executor="http://selenoid:4444/wd/hub",
         options=options
     )
-
     driver.set_window_size(1920, 1080)
     yield driver
     driver.quit()

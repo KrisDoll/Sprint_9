@@ -8,13 +8,20 @@ from helpers.generator import Generator
 
 @pytest.fixture()
 def driver():
-    options = webdriver.ChromeOptions()
-    options.add_argument("--headless")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--disable-gpu")
-    options.add_argument(f"--user-data-dir={tempfile.mkdtemp()}")
-    driver = webdriver.Chrome(options=options)
+    capabilities = {
+        "browserName": "chrome",
+        "browserVersion": "latest",
+        "selenoid:options": {
+            "enableVNC": False,
+            "enableVideo": False
+        }
+    }
+
+    driver = webdriver.Remote(
+        command_executor="http://selenoid:4444/wd/hub",
+        desired_capabilities=capabilities
+    )
+
     driver.set_window_size(1920, 1080)
     yield driver
     driver.quit()

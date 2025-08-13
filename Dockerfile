@@ -73,4 +73,6 @@ RUN wget -q -O /tmp/chromedriver.zip https://storage.googleapis.com/chrome-for-t
    chmod +x /usr/local/bin/chromedriver && \
    rm /tmp/chromedriver.zip
 
+RUN useradd -m jenkins
+
 USER jenkins

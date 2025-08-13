@@ -36,12 +36,16 @@ RUN apt-get update && apt-get install -y \
     libxext6 \
     libxfixes3 \
     libglib2.0-0 \
-    libjpeg62-turbo-dev \
-    libcairo2 && \
-# Очистка кеша
-apt-get clean && rm -rf /var/lib/apt/lists/*
+    libjpeg62-turbo \
+    libappindicator3-1 \
+    libcairo2 \
+    xdg-utils \
+    && apt-get clean
 
-# Копирование requirements.txt и установка Python-зависимостей
+# Обновление pip и установка Python-зависимостей
+RUN apt-get update && apt-get install -y python3 python3-pip python3-venv && pip3 install --upgrade pip
+
+# Копирование requirements.txt и установка зависимостей
 COPY requirements.txt /tmp/
 RUN pip3 install --no-cache-dir -r /tmp/requirements.txt
 

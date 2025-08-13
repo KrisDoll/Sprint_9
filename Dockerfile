@@ -1,78 +1,10 @@
-FROM ubuntu:22.04
-
-# Установка необходимых пакетов
-RUN apt-get update && apt-get install -y \
-    openjdk-11-jdk \
-    python3 \
-    python3-pip \
-    wget \
-    unzip \
-    && pip3 install --upgrade pip
-
-USER root
-
-# Установка системных пакетов и Python зависимостей
-RUN apt-get update && apt-get install -y \
-    python3 \
-    python3-pip \
-    python3-venv \
-    wget \
-    unzip \
-    curl \
-    gnupg \
-    ca-certificates \
-    fonts-liberation \
-    libasound2 \
-    libatk-bridge2.0-0 \
-    libatk1.0-0 \
-    libcups2 \
-    libdbus-1-3 \
-    libgdk-pixbuf2.0-0 \
-    libnspr4 \
-    libnss3 \
-    libx11-xcb1 \
-    libxcomposite1 \
-    libxdamage1 \
-    libxrandr2 \
-    libxkbcommon0 \
-    libdrm2 \
-    libgbm1 \
-    libxss1 \
-    libpango-1.0-0 \
-    libpangocairo-1.0-0 \
-    libgtk-3-0 \
-    libxshmfence1 \
-    libxext6 \
-    libxfixes3 \
-    libglib2.0-0 \
-    libjpeg-turbo8 \
-    libappindicator3-1 \
-    libcairo2 \
-    xdg-utils \
-    && apt-get clean
-
-# Обновление pip и установка Python-зависимостей
-
-RUN apt-get update && apt-get install -y python3 python3-pip && pip3 install --upgrade pip
-
-# Копирование requirements.txt и установка зависимостей
-COPY requirements.txt /tmp/
-RUN pip3 install --no-cache-dir -r /tmp/requirements.txt
-
-# Установка Chrome Headless (версия 139)
-RUN wget -q -O /tmp/chrome-linux64.zip https://storage.googleapis.com/chrome-for-testing-public/139.0.7258.66/linux64/chrome-linux64.zip && \
-    unzip /tmp/chrome-linux64.zip -d /opt/ && \
-    mv /opt/chrome-linux64 /opt/chrome && \
-    ln -s /opt/chrome/chrome /usr/bin/google-chrome && \
-    rm /tmp/chrome-linux64.zip
-
-# Установка ChromeDriver (версия 139)
-RUN wget -q -O /tmp/chromedriver.zip https://storage.googleapis.com/chrome-for-testing-public/139.0.7258.66/linux64/chromedriver-linux64.zip && \
-    unzip /tmp/chromedriver.zip -d /opt/ && \
-    mv /opt/chromedriver-linux64/chromedriver /usr/local/bin/chromedriver && \
-   chmod +x /usr/local/bin/chromedriver && \
-   rm /tmp/chromedriver.zip
-
-RUN useradd -m jenkins
-
-USER jenkins
+# подгружаем образ linux с python:3.13
+FROM python:3.13
+# создаем папку app
+WORKDIR /app
+# копируем содержимое проекта в папку app
+COPY . .
+# устанавливаем зависимости проекта
+RUN pip install -r requirements.txt
+# при старте контейнера запускаем команду pytest с генерацией отчета в папку allure-results
+CMD ["pytest", "--alluredir", "allure-results"]

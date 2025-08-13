@@ -18,7 +18,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install pillow
+        pip install pillow selenium pytest allure-pytest
 
     - name: Prepare Selenoid
       run: |
@@ -45,15 +45,25 @@ jobs:
           -v $(pwd)/selenoid:/etc/selenoid \
           aerokube/selenoid:latest
 
-    - name: Create test image
+    - name: Create test environment
       run: |
         mkdir -p tests/test_data
-        python -c "from PIL import Image; Image.new('RGB', (100, 100), 'red').save('tests/test_data/test_picture.jpg')"
+        python -c "
+        from PIL import Image
+        img = Image.new('RGB', (100, 100), color='red')
+        img.save('tests/test_data/test_picture.jpg')
+        "
+        echo "Test data prepared:"
+        ls -R tests/test_data/
 
     - name: Run tests
-      run: pytest -v --alluredir=allure-results
+      run: |
+        echo "Waiting for Selenoid..."
+        while ! curl -s http://localhost:4444/status >/dev/null; do sleep 1; done
+        pytest -v --alluredir=allure-results
       env:
         SELENOID_URL: http://localhost:4444/wd/hub
+        BROWSER: chrome
 
     - name: Upload results
       if: always()

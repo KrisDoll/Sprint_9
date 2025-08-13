@@ -51,6 +51,12 @@ jobs:
       env:
         SELENOID_URL: http://localhost:4444/wd/hub
 
+    - name: Upload test image
+      run: |
+        mkdir -p tests/test_data
+        # Замените на реальный URL вашего изображения или загрузите из репозитория
+        curl -o tests/test_data/test_picture.jpg https://example.com/path/to/your/image.jpg
+
     - name: Upload results
       if: always()
       uses: actions/upload-artifact@v4

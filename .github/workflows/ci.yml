@@ -1,88 +1,53 @@
-name: Selenoid Tests Workflow
+name: Selenoid Tests
 
-on:
-  push:
-    branches:
-      - develop
+on: [push, pull_request]
 
 jobs:
-  run-selenoid-tests:
+  test:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out repository code
-        uses: actions/checkout@v4  # Обновлено до v4
+    - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5  # Обновлено до v5
-        with:
-          python-version: "3.10"
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.10"
 
-      - name: Install dependencies
-        run: pip install -r requirements.txt
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+        sudo apt-get update
+        sudo apt-get install -y docker-compose-plugin
 
-      - name: Prepare Selenoid environment
-        run: |
-          mkdir -p selenoid
-          echo '{
-            "chrome": {
-              "default": "128.0",
-              "versions": {
-                "128.0": {
-                  "image": "selenoid/chrome:128.0",
-                  "port": "4444",
-                  "path": "/",
-                  "tmpfs": { "/tmp": "size=512m" }
-                }
+    - name: Prepare Selenoid
+      run: |
+        mkdir -p selenoid
+        echo '{
+          "chrome": {
+            "default": "latest",
+            "versions": {
+              "latest": {
+                "image": "selenoid/chrome:latest",
+                "port": "4444",
+                "path": "/"
               }
             }
-          }' > selenoid/browsers.json
+          }
+        }' > selenoid/browsers.json
 
-      - name: Pull required images
-        run: |
-          docker pull aerokube/selenoid:latest
-          docker pull aerokube/selenoid-ui:latest
-          docker pull selenoid/chrome:128.0
+    - name: Run tests
+      run: |
+        docker compose up -d selenoid
+        sleep 10
+        pytest -v --alluredir=allure-results
+      env:
+        SELENOID_URL: http://localhost:4444/wd/hub
 
-      - name: Start Selenoid
-        run: docker compose up -d selenoid
-
-      - name: Wait for Selenoid initialization
-        run: |
-          for i in {1..10}; do
-            if docker compose exec selenoid curl -s http://localhost:4444/status | grep -q '"total":1'; then
-              echo "Selenoid ready"
-              exit 0
-            fi
-            sleep 3
-          done
-          echo "Selenoid not ready after 30 seconds"
-          exit 1
-
-      - name: Start test environment
-        run: |
-          docker compose up -d selenoid-ui
-          docker compose build test_docker
-
-      - name: Run tests
-        run: docker compose up --exit-code-from test_docker test_docker
-
-      - name: Collect logs
-        if: always()
-        run: |
-          docker compose logs selenoid > selenoid.log
-          docker compose logs test_docker > tests.log
-          echo "### Selenoid logs ###"
-          cat selenoid.log
-          echo "### Test logs ###"
-          cat tests.log
-
-      - name: Upload test reports
-        if: always()
-        uses: actions/upload-artifact@v4  # Обновлено до v4
-        with:
-          name: test-reports
-          path: |
-            ./reports
-            ./selenoid.log
-            ./tests.log
-          retention-days: 3  # Автоматическое удаление через 3 дня
+    - name: Upload results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results
+        path: |
+          allure-results
+          selenoid.log

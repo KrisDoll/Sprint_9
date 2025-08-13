@@ -3,24 +3,16 @@ version: '3.8'
 services:
   selenoid:
     image: aerokube/selenoid:latest
-    container_name: selenoid
-    hostname: selenoid  # Явное указание hostname
     ports:
       - "4444:4444"
     volumes:
       - "./selenoid/browsers.json:/etc/browsers.json:ro"
       - "/var/run/docker.sock:/var/run/docker.sock"
-      - "./selenoid/video:/opt/selenoid/video"
-    networks:
-      selenoid_net:
-        aliases:
-          - selenoid  # Добавляем алиас для сети
-    healthcheck:  # Проверка здоровья сервиса
+    healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:4444/status"]
       interval: 5s
       timeout: 5s
       retries: 5
-    command: ["-conf", "/etc/browsers.json", "-limit", "5"]
 
   selenoid-ui:
     image: "aerokube/selenoid-ui:latest"

@@ -5,20 +5,24 @@ from selenium.webdriver.chrome.service import Service as ChromeService
 from pages.auth_page import Authorization
 from helpers.generator import Generator
 
+import pytest
+import os
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+
 
 @pytest.fixture()
 def driver():
-    options = webdriver.ChromeOptions()
+    options = Options()
     options.set_capability("browserName", "chrome")
-    options.set_capability("browserVersion", "128.0")  # Должно совпадать с browsers.json
+    options.set_capability("browserVersion", "latest")
     options.set_capability("selenoid:options", {
         "enableVNC": False,
-        "enableVideo": False,
-        "sessionTimeout": "5m"
+        "enableVideo": False
     })
 
     driver = webdriver.Remote(
-        command_executor="http://selenoid:4444/wd/hub",
+        command_executor=os.getenv('SELENOID_URL'),
         options=options
     )
     driver.set_window_size(1920, 1080)

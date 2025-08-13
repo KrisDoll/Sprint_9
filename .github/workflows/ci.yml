@@ -1,0 +1,75 @@
+name: Selenoid Tests
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pillow selenium pytest allure-pytest
+
+    - name: Prepare Selenoid
+      run: |
+        mkdir -p selenoid
+        echo '{
+          "chrome": {
+            "default": "latest",
+            "versions": {
+              "latest": {
+                "image": "selenoid/chrome:latest",
+                "port": "4444",
+                "path": "/"
+              }
+            }
+          }
+        }' > selenoid/browsers.json
+
+    - name: Start Selenoid
+      run: |
+        docker pull aerokube/selenoid:latest
+        docker pull selenoid/chrome:latest
+        docker run -d --name selenoid -p 4444:4444 \
+          -v /var/run/docker.sock:/var/run/docker.sock \
+          -v $(pwd)/selenoid:/etc/selenoid \
+          aerokube/selenoid:latest
+
+    - name: Create test environment
+      run: |
+        mkdir -p tests/test_data
+        python -c "
+        from PIL import Image
+        img = Image.new('RGB', (100, 100), color='red')
+        img.save('tests/test_data/test_picture.jpg')
+        "
+        echo "Test data prepared:"
+        ls -R tests/test_data/
+
+    - name: Run tests
+      run: |
+        echo "Waiting for Selenoid..."
+        while ! curl -s http://localhost:4444/status >/dev/null; do sleep 1; done
+        pytest -v --alluredir=allure-results
+      env:
+        SELENOID_URL: http://localhost:4444/wd/hub
+        BROWSER: chrome
+
+    - name: Upload results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results
+        path: |
+          allure-results
+          tests/test_data/test_picture.jpg

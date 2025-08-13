@@ -111,17 +111,16 @@ class BasePage:
     from selenium.webdriver.support.ui import WebDriverWait
     from selenium.webdriver.support import expected_conditions as EC
 
-    def upload_image(self, locator, file_name="tests/test_data/test_picture.png"):
+    def upload_image(self, locator, file_name="tests/test_data/test_picture.jpg"):
         project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        image_path = os.path.join(project_root, file_name)
-        print(f"Ищем изображение по пути: {image_path}")
-        print("Содержимое папки tests:", os.listdir(os.path.join(project_root, "tests")))
+        image_path = os.path.normpath(os.path.join(project_root, file_name))
+        print(f"Проверяем путь: {image_path}")
+        os.makedirs(os.path.dirname(image_path), exist_ok=True)
         if not os.path.isfile(image_path):
-            available_files = os.listdir(os.path.dirname(image_path))
-            raise FileNotFoundError(
-                f"Файл {file_name} не найден по пути: {image_path}\n"
-                f"Доступные файлы: {available_files}"
-            )
+            from PIL import Image
+            print(f"Создаем тестовое изображение: {image_path}")
+            img = Image.new('RGB', (100, 100), color='red')
+            img.save(image_path)
         element = WebDriverWait(self.driver, 10).until(
             EC.presence_of_element_located(locator)
         )

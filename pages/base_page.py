@@ -107,13 +107,21 @@ class BasePage:
     def wait_for_url_matches(self, pattern):
         return self.wait.until(EC.url_matches(pattern))
 
-    def upload_image(self, locator, file_name="tests/test_data/test_picture.jpg"):
-        project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    import os
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+
+    def upload_image(self, locator, file_name="tests/test_data/test_picture.png"):
+        project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         image_path = os.path.join(project_root, file_name)
         print(f"Ищем изображение по пути: {image_path}")
-        print("Содержимое папки:", os.listdir(os.path.join(project_root, "tests/test_data")))
+        print("Содержимое папки tests:", os.listdir(os.path.join(project_root, "tests")))
         if not os.path.isfile(image_path):
-            raise FileNotFoundError(f"Файл не найден: {image_path}")
+            available_files = os.listdir(os.path.dirname(image_path))
+            raise FileNotFoundError(
+                f"Файл {file_name} не найден по пути: {image_path}\n"
+                f"Доступные файлы: {available_files}"
+            )
         element = WebDriverWait(self.driver, 10).until(
             EC.presence_of_element_located(locator)
         )

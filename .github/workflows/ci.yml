@@ -10,8 +10,27 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
-      # Вставим вторым шагом скачивание нужного контейнера
+
+      # Скачивание образа Selenoid
       - name: Pull selenoid image
         run: docker pull selenoid/chrome:128.0
-      - name: Run tests in docker
-        run: docker compose up --build --exit-code-from test_docker
+
+      # Запуск контейнеров через docker-compose
+      - name: Run containers
+        run: |
+          docker compose up --build --exit-code-from test_docker
+
+      # Проверка запущенных контейнеров (добавьте после запуска)
+      - name: List running containers
+        run: |
+          docker ps
+
+      # Просмотр логов контейнера selenoid (если нужно)
+      - name: Show logs of selenoid
+        run: |
+          docker logs selenoid || echo "No logs available for selenoid"
+
+      # Просмотр логов тестового контейнера (если нужно)
+      - name: Show logs of test_docker
+        run: |
+          docker logs test_docker || echo "No logs available for test_docker"

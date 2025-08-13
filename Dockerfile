@@ -43,7 +43,8 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean
 
 # Обновление pip и установка Python-зависимостей
-RUN apt-get update && apt-get install -y python3 python3-pip python3-venv && pip3 install --upgrade pip
+
+RUN apt-get update && apt-get install -y python3 python3-pip && pip3 install --upgrade pip
 
 # Копирование requirements.txt и установка зависимостей
 COPY requirements.txt /tmp/

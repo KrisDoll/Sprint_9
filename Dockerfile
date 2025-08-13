@@ -5,6 +5,6 @@ WORKDIR /app
 # копируем содержимое проекта в папку app
 COPY . .
 # устанавливаем зависимости проекта
-RUN pip install --no-cache-dir -r requirements.txt pytest
+RUN pip install --no-cache-dir -r requirements.txt
 # при старте контейнера запускаем команду pytest с генерацией отчета в папку allure-results
 CMD ["pytest", "-v", "--alluredir=allure-results"]

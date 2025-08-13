@@ -24,7 +24,7 @@ services:
     command: ["--selenoid-uri", "http://selenoid:4444"]
 
   test_docker:
-    build: .
+    image: selenium/standalone-chrome
     container_name: test_docker
     depends_on:
       - selenoid
@@ -34,10 +34,11 @@ services:
     environment:
       SELENOID_URI: http://selenoid:4444/wd/hub
       BROWSER: chrome
-      BROWSER_VERSION: 128.0
+      BROWSER_VERSION: latest
     volumes:
       - ./reports:/app/reports
-    command: ["pytest", "-v", "--alluredir=reports/allure-results"]
+      - ./:/app  # чтобы ваши тесты были внутри контейнера
+    command: [ "pytest", "-v", "--alluredir=reports/allure-results" ]
 
 networks:
   selenoid:

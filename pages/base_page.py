@@ -107,10 +107,11 @@ class BasePage:
     def wait_for_url_matches(self, pattern):
         return self.wait.until(EC.url_matches(pattern))
 
-    def upload_image(self, locator, file_name):
+    def upload_image(self, locator, file_name="tests/test_data/test_picture.jpg"):
         project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         image_path = os.path.join(project_root, file_name)
-        print(f"Загружаем изображение: {image_path}")
+        print(f"Ищем изображение по пути: {image_path}")
+        print("Содержимое папки:", os.listdir(os.path.join(project_root, "tests/test_data")))
         if not os.path.isfile(image_path):
             raise FileNotFoundError(f"Файл не найден: {image_path}")
         element = WebDriverWait(self.driver, 10).until(

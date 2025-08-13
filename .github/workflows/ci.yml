@@ -46,7 +46,10 @@ jobs:
     - name: Wait for Selenoid
       run: sleep 10
 
-        
+    - name: Checkout code with test image
+      uses: actions/checkout@v4
+      with:
+        path: 'Diplom'
 
     - name: Run tests
       run: pytest -v --alluredir=allure-results

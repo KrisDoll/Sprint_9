@@ -5,6 +5,9 @@ on: [push, pull_request]
 jobs:
   test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./Diplom
     steps:
     - uses: actions/checkout@v4
 
@@ -52,10 +55,12 @@ jobs:
         path: 'Diplom'
 
     - name: Run tests
-      run: pytest -v --alluredir=allure-results
-      env:
-        SELENOID_URL: http://localhost:4444/wd/hub
-
+      run: |
+          docker pull selenoid/chrome:latest
+          pytest -v --alluredir=allure-results
+        env:
+          SELENOID_URL: http://localhost:4444/wd/hub
+          BROWSER: chrome
 
 
     - name: Upload results

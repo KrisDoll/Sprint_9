@@ -5,14 +5,12 @@ on: [push, pull_request]
 jobs:
   test:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./Diplom
+
     steps:
     - uses: actions/checkout@v4
 
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v4
       with:
         python-version: "3.10"
 
@@ -20,6 +18,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+        pip install pillow
 
     - name: Prepare Selenoid
       run: |
@@ -37,33 +36,30 @@ jobs:
           }
         }' > selenoid/browsers.json
 
-    - name: Pull Selenoid images
+    - name: Start Selenoid
       run: |
         docker pull aerokube/selenoid:latest
         docker pull selenoid/chrome:latest
-        
+        docker run -d --name selenoid -p 4444:4444 \
+          -v /var/run/docker.sock:/var/run/docker.sock \
+          -v $(pwd)/selenoid:/etc/selenoid \
+          aerokube/selenoid:latest
 
-    - name: Start Selenoid
-      run: docker run -d --name selenoid -p 4444:4444 -v /var/run/docker.sock:/var/run/docker.sock -v $(pwd)/selenoid:/etc/selenoid aerokube/selenoid:latest
-
-    - name: Wait for Selenoid
-      run: sleep 10
-
-    - name: Checkout code with test image
-      uses: actions/checkout@v4
-      with:
-        path: 'Diplom'
+    - name: Create test image
+      run: |
+        mkdir -p tests/test_data
+        python -c "from PIL import Image; Image.new('RGB', (100, 100), 'red').save('tests/test_data/test_picture.jpg')"
 
     - name: Run tests
       run: pytest -v --alluredir=allure-results
       env:
         SELENOID_URL: http://localhost:4444/wd/hub
 
-
-
     - name: Upload results
       if: always()
       uses: actions/upload-artifact@v4
       with:
         name: test-results
-        path: allure-results
+        path: |
+          allure-results
+          tests/test_data/test_picture.jpg

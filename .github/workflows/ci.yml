@@ -13,11 +13,10 @@ jobs:
       with:
         python-version: "3.10"
 
-    - name: Install dependencies
+    - name: Install core dependencies
       run: |
+        pip install --upgrade pip
         pip install -r requirements.txt
-        sudo apt-get update
-        sudo apt-get install -y docker-compose-plugin
 
     - name: Prepare Selenoid
       run: |
@@ -35,11 +34,18 @@ jobs:
           }
         }' > selenoid/browsers.json
 
+    - name: Start Selenoid
+      run: docker run -d --name selenoid \
+           -p 4444:4444 \
+           -v /var/run/docker.sock:/var/run/docker.sock \
+           -v $(pwd)/selenoid:/etc/selenoid \
+           aerokube/selenoid:latest
+
+    - name: Wait for Selenoid
+      run: sleep 10  # Простое ожидание вместо healthcheck
+
     - name: Run tests
-      run: |
-        docker compose up -d selenoid
-        sleep 10
-        pytest -v --alluredir=allure-results
+      run: pytest -v --alluredir=allure-results
       env:
         SELENOID_URL: http://localhost:4444/wd/hub
 
@@ -48,6 +54,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: test-results
-        path: |
-          allure-results
-          selenoid.log
+        path: allure-results

@@ -1,10 +1,6 @@
-import pytest
-import tempfile
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service as ChromeService
+
 from pages.auth_page import Authorization
 from helpers.generator import Generator
-
 import pytest
 import os
 from selenium import webdriver

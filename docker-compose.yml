@@ -1,32 +1,47 @@
-version: '3.8'  # ← Добавляем версию (обязательно!)
+version: '3.8'
 
 services:
   selenoid:
     image: aerokube/selenoid:latest
+    container_name: selenoid
+    hostname: selenoid  # Явное указание hostname
     ports:
       - "4444:4444"
     volumes:
       - "./selenoid/browsers.json:/etc/browsers.json:ro"
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "./selenoid/video:/opt/selenoid/video"
+    networks:
+      selenoid_net:
+        aliases:
+          - selenoid  # Добавляем алиас для сети
+    healthcheck:  # Проверка здоровья сервиса
+      test: ["CMD", "curl", "-f", "http://localhost:4444/status"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     command: ["-conf", "/etc/browsers.json", "-limit", "5"]
 
   selenoid-ui:
     image: "aerokube/selenoid-ui:latest"
     container_name: selenoid-ui
+    depends_on:
+      selenoid:
+        condition: service_healthy  # Ждем готовности selenoid
     ports:
       - "8081:8080"
     networks:
-      - selenoid_net  # ← Исправляем на selenoid_net
+      - selenoid_net
     command: ["--selenoid-uri", "http://selenoid:4444"]
 
   test_docker:
-    build: .  # ← Собираем из Dockerfile
+    build: .
     container_name: test_docker
     depends_on:
-      - selenoid
+      selenoid:
+        condition: service_healthy  # Ждем готовности selenoid
     networks:
-      - selenoid_net  # ← Исправляем на selenoid_net
+      - selenoid_net
     environment:
       SELENOID_URI: http://selenoid:4444/wd/hub
       BROWSER: chrome
@@ -35,5 +50,6 @@ services:
     command: ["pytest", "-v", "--alluredir=/app/reports/allure-results"]
 
 networks:
-  selenoid_net:  # ← Оставляем только это определение
+  selenoid_net:
+    name: selenoid_net  # Фиксированное имя сети
     driver: bridge

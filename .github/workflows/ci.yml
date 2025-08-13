@@ -1,4 +1,5 @@
 name: Selenoid Tests Workflow
+
 on:
   push:
     branches:
@@ -11,29 +12,69 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v3
 
-      # Скачивание образа Selenoid
-      - name: Pull selenoid image
-        run: docker pull selenoid/chrome:128.0
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
 
-      # Запуск контейнеров через docker-compose
-      - name: Run containers
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Prepare Selenoid environment
         run: |
-          docker compose up --build --exit-code-from test_docker
+          mkdir -p selenoid
+          echo '{
+            "chrome": {
+              "default": "128.0",
+              "versions": {
+                "128.0": {
+                  "image": "selenoid/chrome:128.0",
+                  "port": "4444",
+                  "path": "/",
+                  "tmpfs": { "/tmp": "size=512m" }
+                }
+              }
+            }
+          }' > selenoid/browsers.json
 
-      # Проверка запущенных контейнеров (добавьте после запуска)
-      - name: List running containers
+      - name: Pull required images
         run: |
-          docker ps
+          docker pull aerokube/selenoid:latest
+          docker pull aerokube/selenoid-ui:latest
+          docker pull selenoid/chrome:128.0
 
-      # Просмотр логов контейнера selenoid (если нужно)
-      - name: Show logs of selenoid
+      - name: Start Selenoid
+        run: docker compose up -d selenoid
+
+      - name: Wait for Selenoid to be ready
         run: |
-          docker logs selenoid || echo "No logs available for selenoid"
+          sleep 10  # Basic wait
+          docker compose exec selenoid curl -f http://localhost:4444/status || exit 1
 
-      # Просмотр логов тестового контейнера (если нужно)
-      - name: Show logs of test_docker
+      - name: Start test environment
         run: |
-          docker logs test_docker || echo "No logs available for test_docker"
+          docker compose up -d selenoid-ui
+          docker compose build test_docker
 
-      - name: Build test image
-        run: docker compose build
+      - name: Run tests
+        run: docker compose up --exit-code-from test_docker test_docker
+
+      - name: Collect logs
+        if: always()
+        run: |
+          docker compose logs selenoid > selenoid.log
+          docker compose logs test_docker > tests.log
+          echo "### Selenoid logs ###"
+          cat selenoid.log
+          echo "### Test logs ###"
+          cat tests.log
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-reports
+          path: |
+            ./reports
+            ./selenoid.log
+            ./tests.log

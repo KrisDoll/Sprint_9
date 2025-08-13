@@ -36,13 +36,12 @@ RUN apt-get update && apt-get install -y \
     libxext6 \
     libxfixes3 \
     libglib2.0-0 \
-    libjpeg62-turbo-dev \   # добавил -dev для совместимости
-    libcairo2 && \             # убрал лишний перенос строки
+    libjpeg62-turbo-dev \
+    libcairo2 && \
 # Очистка кеша
 apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Установка Python-зависимостей из requirements.txt (предполагается, что он копируется в образ)
-# Копируйте requirements.txt в образ перед этим шагом
+# Копирование requirements.txt и установка Python-зависимостей
 COPY requirements.txt /tmp/
 RUN pip3 install --no-cache-dir -r /tmp/requirements.txt
 

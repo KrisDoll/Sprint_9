@@ -8,18 +8,17 @@ from helpers.generator import Generator
 
 @pytest.fixture()
 def driver():
-    capabilities = {
-        "browserName": "chrome",
-        "browserVersion": "latest",
-        "selenoid:options": {
-            "enableVNC": False,
-            "enableVideo": False
-        }
-    }
+    options = webdriver.ChromeOptions()
+    options.set_capability("browserName", "chrome")
+    options.set_capability("browserVersion", "latest")
+    options.set_capability("selenoid:options", {
+        "enableVNC": False,
+        "enableVideo": False
+    })
 
     driver = webdriver.Remote(
         command_executor="http://selenoid:4444/wd/hub",
-        desired_capabilities=capabilities
+        options=options
     )
 
     driver.set_window_size(1920, 1080)

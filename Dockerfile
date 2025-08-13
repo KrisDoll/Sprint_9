@@ -45,7 +45,7 @@ RUN apt-get update && apt-get install -y \
     libxext6 \
     libxfixes3 \
     libglib2.0-0 \
-    libjpeg62-turbo \
+    libjpeg-turbo8 \
     libappindicator3-1 \
     libcairo2 \
     xdg-utils \

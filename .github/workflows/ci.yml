@@ -13,9 +13,9 @@ jobs:
       with:
         python-version: "3.10"
 
-    - name: Install core dependencies
+    - name: Install dependencies
       run: |
-        pip install --upgrade pip
+        python -m pip install --upgrade pip
         pip install -r requirements.txt
 
     - name: Prepare Selenoid
@@ -34,15 +34,17 @@ jobs:
           }
         }' > selenoid/browsers.json
 
+    - name: Pull Selenoid images
+      run: |
+        docker pull aerokube/selenoid:latest
+        docker pull selenoid/chrome:latest
+        
+
     - name: Start Selenoid
-      run: docker run -d --name selenoid \
-           -p 4444:4444 \
-           -v /var/run/docker.sock:/var/run/docker.sock \
-           -v $(pwd)/selenoid:/etc/selenoid \
-           aerokube/selenoid:latest
+      run: docker run -d --name selenoid -p 4444:4444 -v /var/run/docker.sock:/var/run/docker.sock -v $(pwd)/selenoid:/etc/selenoid aerokube/selenoid:latest
 
     - name: Wait for Selenoid
-      run: sleep 10  # Простое ожидание вместо healthcheck
+      run: sleep 10
 
     - name: Run tests
       run: pytest -v --alluredir=allure-results

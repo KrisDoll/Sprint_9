@@ -108,11 +108,12 @@ class BasePage:
         return self.wait.until(EC.url_matches(pattern))
 
     def upload_image(self, locator, file_name):
-        absolute_path = r"C:\Users\Pusya\PycharmProjects\Diplom\Sprint_9\tests\test_data\test_picture.jpg"
-        print(f"Используемый путь к файлу: {absolute_path}")
-
+        project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        absolute_path = os.path.join(project_root, file_name)
+        print(f"Пытаемся загрузить файл по пути: {absolute_path}")
         if not os.path.isfile(absolute_path):
             raise FileNotFoundError(f"Файл не найден по пути: {absolute_path}")
-
-        element = WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable(locator))
+        element = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located(locator)
+        )
         element.send_keys(absolute_path)

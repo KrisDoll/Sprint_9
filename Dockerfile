@@ -1,4 +1,13 @@
-FROM jenkins/jenkins:lts
+FROM ubuntu:22.04
+
+# Установка необходимых пакетов
+RUN apt-get update && apt-get install -y \
+    openjdk-11-jdk \
+    python3 \
+    python3-pip \
+    wget \
+    unzip \
+    && pip3 install --upgrade pip
 
 USER root
 

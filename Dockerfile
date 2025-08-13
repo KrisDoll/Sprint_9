@@ -1,10 +1,5 @@
-# подгружаем образ linux с python:3.13
-FROM python:3.13
-# создаем папку app
+FROM python:3.10-slim  # ← 3.13 ещё не стабилен, лучше 3.10
 WORKDIR /app
-# копируем содержимое проекта в папку app
-COPY . .
-# устанавливаем зависимости проекта
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-# при старте контейнера запускаем команду pytest с генерацией отчета в папку allure-results
-CMD ["pytest", "-v", "--alluredir=allure-results"]
+COPY . .

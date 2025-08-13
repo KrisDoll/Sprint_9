@@ -24,23 +24,18 @@ services:
     command: ["--selenoid-uri", "http://selenoid:4444"]
 
   test_docker:
-    image: selenium/standalone-chrome
-    container_name: test_docker
+    build: .  # ← Собираем из Dockerfile
     depends_on:
       - selenoid
     networks:
       - selenoid
-    tty: true
     environment:
       SELENOID_URI: http://selenoid:4444/wd/hub
       BROWSER: chrome
-      BROWSER_VERSION: latest
     volumes:
       - ./reports:/app/reports
-      - ./:/app  # чтобы ваши тесты были внутри контейнера
-    command: [ "pytest", "-v", "--alluredir=reports/allure-results" ]
+    command: [ "pytest", "-v", "--alluredir=/app/reports/allure-results" ]
 
 networks:
-  selenoid:
-    name: selenoid_net
+  selenoid_net:
     driver: bridge

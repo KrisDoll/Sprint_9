@@ -34,3 +34,6 @@ jobs:
       - name: Show logs of test_docker
         run: |
           docker logs test_docker || echo "No logs available for test_docker"
+
+      - name: Build test image
+        run: docker compose build
